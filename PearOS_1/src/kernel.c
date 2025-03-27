@@ -76,6 +76,9 @@ void kernel_main()
     terminal_initialize();
     print("hello world!");
     
+    // Initilaize the heap
+    kheap_init();
+
     // Initialize the interrupt descriptor table
     idt_init();
 

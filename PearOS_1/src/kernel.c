@@ -8,6 +8,7 @@
 #include "string/string.h"
 #include "disk/disk.h"
 #include "fs/pparser.h"
+#include "disk/streamer.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;

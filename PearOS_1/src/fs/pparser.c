@@ -51,7 +51,7 @@ static const char* pathparser_get_path_part(const char** path)
         *path += 1;
     }
 
-    if (i = 0)
+    if (i == 0)
     {
         kfree(result_path_part);
         result_path_part = 0;

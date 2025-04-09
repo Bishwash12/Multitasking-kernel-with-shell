@@ -92,7 +92,7 @@ int heap_get_start_block(struct heap* heap, uint32_t total_blocks)
 
         bc++;
 
-        if (bc == total_blocks);
+        if (bc == total_blocks)
         {
             break;
         }
@@ -113,7 +113,7 @@ void* heap_block_to_address(struct heap* heap, uint32_t block)
     return heap->saddr + (block * PEAROS_HEAP_BLOCK_SIZE);
 }
 
-void* heap_mark_blocks_taken(struct heap* heap, int start_block, int total_blocks)
+void heap_mark_blocks_taken(struct heap* heap, int start_block, int total_blocks)
 {
     int end_block = (start_block + total_blocks) - 1;
 

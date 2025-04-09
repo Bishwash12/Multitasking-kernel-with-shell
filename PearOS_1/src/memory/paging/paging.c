@@ -79,4 +79,5 @@ int paging_set(uint32_t* directory, void* virt, uint32_t val)
     uint32_t* table = (uint32_t*)(entry & 0xfffff000);
     table[table_index] = val;
 
+    return 0;
 }

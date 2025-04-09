@@ -93,7 +93,7 @@ void kernel_main()
     paging_set(paging_4gb_chunk_get_directory(kernel_chunk), (void*)0x100, (uint32_t)ptr | PAGING_ACCESS_FROM_ALL | PAGING_IS_PRESENT | PAGING_IS_WRITEABLE);
 
     // Enable paging
-    enable_paging;
+    //enable_paging;
 
     // Enable the system interrupts
     enable_interrupts();

@@ -1,6 +1,7 @@
 #include "file.h"
 #include "config.h"
 #include "memory/memory.h"
+#include "fat/fat16.h"
 #include "status.h"
 #include "memory/heap/kheap.h"
 #include "kernel.h"
@@ -38,7 +39,7 @@ void fs_insert_filesystem(struct filesystem* filesystem)
 
 static void fs_static_load()
 {
-    //fs_insert_filesystem(fat16_int());
+    fs_insert_filesystem(fat16_int());
 }
 
 void fs_load()

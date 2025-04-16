@@ -5,6 +5,8 @@
 #include "status.h"
 #include "memory/heap/kheap.h"
 #include "kernel.h"
+#include "disk/disk.h"
+#include "string/string.h"
 
 struct filesystem* filesystems[PEAROS_MAX_FILESYSTEM];
 struct file_descriptor* file_descriptors[PEAROS_MAX_FILE_DESCRIPTORS];
@@ -100,7 +102,75 @@ struct filesystem* fs_resolve(struct disk* disk)
     }
 }
 
-int fopen(const char* filename, const char* mode)
+
+
+FILE_MODE file_get_mode_by_string(const char* str)
 {
-    return -EIO;
+    FILE_MODE mode = FILE_MODE_INVALID;
+    if (strncmp(str, "r", 1) == 0)
+    {
+        mode = FILE_MODE_READ;
+    }
+
+    else if(strncmp(str, "w", 1) == 0)
+    {
+        mode = FILE_MODE_WRITE;
+    }
+
+    else if(strncmp(str, "a", 1) == 0)
+    {
+        mode = FILE_MODE_APPEND;
+    }
+
+    return mode;
+}
+
+int fopen(const char* filename, const char* mode_string)
+{
+    int res = 0;
+
+    struct path_root* root_path = pathparser_parse(filename, NULL);
+    if (!root_path)
+    {
+        res = -EINVARG;
+        goto out;
+    }
+
+    // We cannot have just a root path 0:/ 0:/test.txt
+    if (!root_path->first)
+    {
+        res = -EINVARG;
+        goto out;
+    }
+
+    // Ensure the disk we are reading from exists
+    struct disk* disk = disk_get(root_path->drive_no);
+    if (!disk)
+    {
+        res = -EIO;
+        goto out;
+    }
+
+    if (!disk->filesystem)
+    {
+        res = -EIO;
+        goto out;
+    }
+
+    FILE_MODE mode = file_get_mode_by_string(mode_string);
+    if (mode == FILE_MODE_INVALID)
+    {
+        res = -EINVARG;
+        goto out;
+    }
+
+    void* descriptor_private_data = disk->filesystem->open(disk, root_path->first, mode);
+    if (ISERR(descriptor_private_data))
+    {
+        res = ERROR_I(descriptor_private_data);
+        goto out;
+    }
+
+out:
+    return res;
 }

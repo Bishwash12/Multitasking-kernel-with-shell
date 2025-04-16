@@ -7,6 +7,7 @@
 #include "disk/streamer.h"
 #include "memory/memory.h"
 #include "memory/heap/kheap.h"
+#include "kernel.h"
 
 #define PEAROS_FAT16_SIGNATURE 0x29
 #define PEAROS_FAT16_FAT_ENTRY_SIZE 0x02
@@ -102,7 +103,7 @@ struct fat_item
     FAT_ITEM_TYPE type;
 };
 
-struct fat_item_descriptor
+struct fat_file_descriptor
 {
     struct fat_item* item;
     uint32_t pos;
@@ -257,7 +258,7 @@ int fat16_resolve(struct disk* disk)
 
     disk->fs_private = fat_private;
     disk->filesystem = &fat16_fs;
-    
+
     struct disk_stream* stream = diskstreamer_new(disk->id);
     if (!stream)
     {
@@ -298,7 +299,46 @@ out:
     return res;
 }
 
+
+struct fat_item* fat16_find_item_in_directory(struct disk* disk, struct fat_directory* directory, const char* name)
+{
+    struct fat_item* f_item = 0;
+}
+
+struct fat_item* fat16_get_directory_entry(struct disk* disk, struct path_part* path)
+{
+    struct fat_private* fat_private = disk->fs_private;
+    struct fat_item* current_item = 0;
+    struct fat_item* root_item = fat16_find_item_in_directory(disk, &fat_private->root_directory, path->part);
+    if (!root_item)
+    {
+        // There is no directory or file
+        goto out;
+    }
+out:
+    return current_item;
+}
+
 void* fat16_open(struct disk* disk, struct path_part* path, FILE_MODE mode)
 {
-    return 0;
+    if (mode != FILE_MODE_READ)
+    {
+        return ERROR(-ERDONLY);
+    }
+
+    struct fat_file_descriptor* descriptor = 0;
+    descriptor = kzalloc(sizeof(struct fat_file_descriptor));
+    if (!descriptor)
+    {
+        return ERROR(-ENOMEM);
+    }
+
+    descriptor->item = fat16_get_directory_entry(disk, path);
+    if(!descriptor->item)
+    {
+        return ERROR(-EIO);
+    }
+
+    descriptor->pos = 0;
+    return descriptor;
 }

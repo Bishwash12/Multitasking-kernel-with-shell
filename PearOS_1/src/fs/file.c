@@ -56,7 +56,7 @@ void fs_init()
     fs_load();
 }
 
-static int file_free_descriptor(struct file_descriptor* desc)
+static void file_free_descriptor(struct file_descriptor* desc)
 {
     file_descriptors[desc->index -1] = 0x00;
     kfree(desc);

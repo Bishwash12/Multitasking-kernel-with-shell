@@ -47,4 +47,7 @@ struct task* task_current();
 struct task* task_get_next();
 int task_free(struct task* task);
 
+void task_return(struct registers* regs);
+void restore_general_purpose_registers(struct registers* regs);
+
 #endif

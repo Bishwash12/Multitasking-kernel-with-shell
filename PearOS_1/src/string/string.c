@@ -116,6 +116,7 @@ char* strncpy(char* dest, const char* src, int count)
     }
 
     dest[i] = 0x00;
+    return dest;
 }
 
 bool isdigit(char c)

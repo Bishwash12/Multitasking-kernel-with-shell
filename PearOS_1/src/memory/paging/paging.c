@@ -72,6 +72,16 @@ out:
     return res;
 }
 
+void* paging_align_address(void* ptr)
+{
+    if ((uint32_t)ptr % PAGING_PAGE_SIZE)
+    {
+        return (void*)((uint32_t)ptr + PAGING_PAGE_SIZE - ((uint32_t)ptr % PAGING_PAGE_SIZE));
+    }
+
+    return ptr;
+}
+
 int paging_map(uint32_t* directory, void* virt, void* phys, int flags)
 {
     if (((unsigned int)virt % PAGING_PAGE_SIZE) || ((unsigned int) phys % PAGING_PAGE_SIZE))

@@ -13,6 +13,9 @@
 #include "task/tss.h"
 #include "config.h"
 #include "memory/memory.h"
+#include "task/task.h"
+#include "task/process.h"
+#include "status.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -116,17 +119,27 @@ void kernel_main()
     kernel_chunk = paging_new_4gb(PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
 
     // Switch to kernel pagin chunk
-    paging_switch(paging_4gb_chunk_get_directory(kernel_chunk));
+    paging_switch(kernel_chunk);
 
 
     char* ptr = kzalloc(4096);
     paging_set(paging_4gb_chunk_get_directory(kernel_chunk), (void*)0x100, (uint32_t)ptr | PAGING_ACCESS_FROM_ALL | PAGING_IS_PRESENT | PAGING_IS_WRITEABLE);
 
     // Enable paging
-    //enable_paging;
+    enable_paging();
 
     // Enable the system interrupts
-    enable_interrupts();
+    //enable_interrupts();
 
-    pathparser_parse("0:/bin/shell.bin", NULL);
+    //pathparser_parse("0:/bin/shell.bin", NULL);
+
+    struct process* process = 0;
+    int res = process_load("0:/blank.bin", &process);
+
+    if (res != PEAROS_ALL_OK)
+    {
+        panic("Failed to load blank.bin\n");
+    }
+
+    task_run_first_ever_task();
 }

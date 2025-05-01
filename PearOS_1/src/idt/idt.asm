@@ -74,5 +74,7 @@ isr80h_wrapper:
     mov eax, [tmp_res]
     iretd
 
+section .data
+
 ;Inside here is stored return result from isr80h_handler
 tmp_res: dd 0

@@ -4,6 +4,7 @@
 #include "memory/heap/kheap.h"
 #include "memory/memory.h"
 #include "process.h"
+#include "idt/idt.h"
 
 // The current task that is running
 struct task* current_task = 0;
@@ -106,6 +107,23 @@ int task_switch(struct task* task)
     current_task = task;
     paging_switch(task->page_directory);
     return 0;
+}
+
+
+int task_save_state(struct task* task, struct interrupt_frame* frame)
+{
+
+}
+
+void task_current_save_state(struct interrupt_frame* frame)
+{
+    if (!task_current())
+    {
+        panic("No current task to save\n");
+    }
+
+    struct task* task = task_current();
+    task_save_state(task, frame);
 }
 
 int task_page()

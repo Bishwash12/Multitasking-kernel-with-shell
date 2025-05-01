@@ -126,7 +126,7 @@ int paging_map_to(struct paging_4gb_chunk *directory, void *virt, void *phys, vo
     {
         res = -EINVARG;
         goto out;
-    }
+    } 
     if ((uint32_t)phys_end < (uint32_t)phys)
     {
         res = -EINVARG;

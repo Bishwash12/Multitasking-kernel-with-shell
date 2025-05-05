@@ -16,6 +16,7 @@
 #include "task/task.h"
 #include "task/process.h"
 #include "status.h"
+#include "isr80h/isr80h.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -134,6 +135,8 @@ void kernel_main()
     // Enable paging
     enable_paging();
 
+    // Registers kernel commands
+    isr80h_register_commands();
     // Enable the system interrupts
     //enable_interrupts();
 

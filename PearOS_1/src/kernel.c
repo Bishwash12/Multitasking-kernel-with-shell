@@ -103,7 +103,6 @@ struct gdt_structured gdt_structured[PEAROS_TOTAL_GDT_SEGMENTS] = {
 void kernel_main()
 {
     terminal_initialize();
-    print("hello world!");
 
 
     // Initilaize the heap

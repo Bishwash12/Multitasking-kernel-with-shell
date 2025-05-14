@@ -3,6 +3,7 @@
 #include "status.h"
 #include "task/process.h"
 #include "task/task.h"
+#include "classic.h"
 
 // This is our virtual keyboard layer for abstraction
 
@@ -11,7 +12,7 @@ static struct keyboard* keyboard_list_last = 0;
 
 void keyboard_init()
 {
-
+    keyboard_insert(classic_init());
 }
 
 int keyboard_insert(struct keyboard* keyboard)

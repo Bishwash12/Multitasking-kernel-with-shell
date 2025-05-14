@@ -3,6 +3,7 @@
 
 typedef int (*KEYBOARD_INIT_FUNCTION)();
 
+struct process;
 struct keyboard
 {
     KEYBOARD_INIT_FUNCTION init;
@@ -12,6 +13,10 @@ struct keyboard
 };
 
 void keyboard_init();
+void keyboard_backspace(struct process* process);
+void keyboard_push(char c);
+char keyboard_pop();
+
 
 
 #endif

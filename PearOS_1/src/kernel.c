@@ -17,6 +17,7 @@
 #include "task/process.h"
 #include "status.h"
 #include "isr80h/isr80h.h"
+#include "keyboard/keyboard.h"
 
 uint16_t* video_mem = 0;
 uint16_t terminal_row = 0;
@@ -140,6 +141,8 @@ void kernel_main()
     //enable_interrupts();
 
     //pathparser_parse("0:/bin/shell.bin", NULL);
+
+    keyboard_init();
 
     struct process* process = 0;
     int res = process_load("0:/blank.bin", &process);

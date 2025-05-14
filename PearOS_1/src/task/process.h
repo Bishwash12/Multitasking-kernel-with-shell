@@ -37,6 +37,8 @@ struct process
 int process_load(const char* filename, struct process** process);
 
 int process_load_for_slot(const char* filename, struct  process** process, int process_slot);
+struct process* process_current();
+struct process* process_get(int process_id);
 
 
 #endif

@@ -6,6 +6,7 @@ global int21h
 
 global no_interrupt
 extern no_interrupt_handler
+extern interrupt_handler
 
 global idt_load
 
@@ -43,6 +44,33 @@ no_interrupt:
     call no_interrupt_handler
     popad
     iret 
+
+%macro interrupt 1
+    global int%1
+    int%1:
+         INTERRUPT FRAME START
+        ; ALREADY PUSHED TO US BY THE PROCESS UPON ENTRY TO THIS INTERRUPT
+        ;uint32_t ip
+        ;uint32_t cs
+        ;uint32_t flags
+        ;uint32_t sp;
+        ;uint32_t ss;
+        ;Pushes the general purpose registers to the stack
+        pushad
+        ; Interrupt frame end
+        push esp
+        push dword %i
+        call interrupt_handler
+        add esp, 8
+        popad
+        iret
+%endmacro
+
+%assign i 0
+%rep 512
+    interrupt i
+%assign i i+1
+%endrep
 
 
 isr80h_wrapper:

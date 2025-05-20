@@ -7,6 +7,7 @@
 
 struct idt_desc idt_descriptors[PEAROS_TOTAL_INTERRUPTS];
 struct idtr_desc idtr_descriptor;
+extern void* interrupt_pointer_table[PEAROS_MAX_INTERRUPTS];
 
 static ISR80H_COMMAND isr80h_commands[PEAROS_MAX_ISR80H_COMMANDS];
 
@@ -24,6 +25,11 @@ void int21h_handler()
 void no_interrupt_handler()
 {
     outb(0x20, 0x20);
+}
+
+void interrupt_handler(int interrupt, struct interrupt_frame* frame)
+{
+
 }
 
 void idt_zero()
@@ -49,7 +55,7 @@ void idt_init()
 
     for (int i = 0; i < PEAROS_TOTAL_INTERRUPTS; i++)
     {
-        idt_set(i, no_interrupt);
+        idt_set(i, interrupt_pointer_table[i]);
     }
     idt_set(0, idt_zero);
     idt_set(0x21, int21h);

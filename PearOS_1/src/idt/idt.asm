@@ -2,7 +2,6 @@ section .asm
 
 extern int21h_handler
 
-global int21h
 
 global no_interrupt
 extern no_interrupt_handler
@@ -15,6 +14,8 @@ global disable_interrupts
 
 global isr80h_wrapper
 extern isr80h_handler
+
+global interrupt_pointer_table
 
 enable_interrupts:
     sti
@@ -32,12 +33,6 @@ idt_load:
     lidt [ebx]
     pop ebp
     ret
-
-int21h:
-    pushad
-    call int21h_handler
-    popad
-    iret
 
 no_interrupt:
     pushad
@@ -59,7 +54,7 @@ no_interrupt:
         pushad
         ; Interrupt frame end
         push esp
-        push dword %i
+        push dword %1
         call interrupt_handler
         add esp, 8
         popad
@@ -106,3 +101,14 @@ section .data
 
 ;Inside here is stored return result from isr80h_handler
 tmp_res: dd 0
+
+%macro interrupt_array_entry 1
+    dd int%1
+%endmacro
+
+interrupt_pointer_table:
+%assign i 0
+%rep 512
+    interrupt_array_entry i
+%assign i + 1
+%endrep

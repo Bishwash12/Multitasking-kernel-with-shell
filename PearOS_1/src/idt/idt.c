@@ -16,11 +16,6 @@ extern void int21h();
 extern void no_interrupt();
 extern void isr80h_wrapper();
 
-void int21h_handler()
-{
-    print("Keyboard interrupt pressed\n");
-    outb(0x20, 0x20);
-}
 
 void no_interrupt_handler()
 {
@@ -29,7 +24,7 @@ void no_interrupt_handler()
 
 void interrupt_handler(int interrupt, struct interrupt_frame* frame)
 {
-
+    outb(0x20, 0x20);
 }
 
 void idt_zero()
@@ -58,7 +53,6 @@ void idt_init()
         idt_set(i, interrupt_pointer_table[i]);
     }
     idt_set(0, idt_zero);
-    idt_set(0x21, int21h);
 
     idt_set(0x80, isr80h_wrapper);
     // Load the interrupt descriptor table

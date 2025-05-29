@@ -27,7 +27,11 @@ struct elf_file
 
     // The physical end address of this binary
     void* physical_end_address;
-    
+
 };
+
+int elf_load(const char* filename, struct elf_file** file_out);
+void elf_close(struct elf_file* file);
+
 
 #endif

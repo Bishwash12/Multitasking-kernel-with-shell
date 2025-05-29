@@ -7,6 +7,7 @@
 #include "string/string.h"
 #include "kernel.h"
 #include "memory/paging/paging.h"
+#include "loader/formats/elfloader.h"
 
 // The current process that is running
 struct process* current_process = 0;
@@ -69,6 +70,7 @@ static int process_load_binary(const char* filename, struct process* process)
         goto out;
     }
 
+    process->filetype = PROCESS_FILE_TYPE_BINARY;
     process->ptr = program_data_ptr;
     process->size = stat.filesize;
 
@@ -78,10 +80,31 @@ out:
     return res;
 }
 
+static int process_load_elf(const char* filename, struct process* process)
+{
+    int res = 0;
+
+    struct elf_file* elf_file = 0;
+    res = elf_load(filename, &elf_file);
+    if (ISERR(res))
+    {
+        goto out;
+    }
+
+    process->filetype = PROCESS_FILE_TYPE_ELF;
+
+out:
+    return res;
+}
+
 static int process_load_data(const char* filename, struct process* process)
 {
     int res = 0;
-    res = process_load_binary(filename, process);
+    res = process_load_elf(filename, process);
+    if (res == -EINFORMAT)
+    {
+        res = process_load_binary(filename, process);
+    }
     return res;
 }
 

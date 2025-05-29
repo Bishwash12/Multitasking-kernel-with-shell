@@ -3,6 +3,11 @@
 #include <stdint.h>
 #include "config.h"
 
+#define PROCESS_FILE_TYPE_ELF 0
+#define PROCESS_FILE_TYPE_BINARY 1
+
+typedef unsigned char PROCESS_FILETYPE;
+
 struct process
 {
     // The process id
@@ -16,9 +21,14 @@ struct process
     // The memory (malloc) allocations of the process
     void* allocations[PEAROS_MAX_PROGRAM_ALLOCATIONS];
 
+    PROCESS_FILETYPE filetype;
     // The physical pointer to the process memory
-    void* ptr;
-
+    union
+    {
+        void* ptr;
+        struct elf_file* elf_file;
+    };
+    
     // The physical pointer to the stack memory
     void* stack;
 

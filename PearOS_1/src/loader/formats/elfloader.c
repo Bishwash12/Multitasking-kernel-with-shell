@@ -9,7 +9,7 @@
 #include "kernel.h"
 #include "config.h"
 
-const char* elf_signature[] = {0x7f, 'E', 'L', 'F'};
+const char elf_signature[] = {0x7f, 'E', 'L', 'F'};
 
 static bool elf_valid_signature(void* buffer)
 {
@@ -129,6 +129,7 @@ int elf_process_pheader(struct elf_file* elf_file, struct elf32_phdr* phdr)
             res = elf_process_phdr_pt_load(elf_file, phdr);
         break;
     }
+    return res;
 }
 
 int elf_process_pheaders(struct elf_file* elf_file)
@@ -153,7 +154,7 @@ int elf_process_loaded(struct elf_file* elf_file)
     int res = 0;
 
     struct elf_header* header = elf_header(elf_file);
-    int res = elf_validate_loaded(header);
+    res = elf_validate_loaded(header);
     if (res < 0)
     {
         goto out;
@@ -173,7 +174,7 @@ int elf_load(const char* filename, struct elf_file** file_out)
     struct elf_file* elf_file = kzalloc(sizeof(struct elf_file));
     int fd = 0;
     int res = fopen(filename, "r");
-    if (res <= 0)
+    if (res < 0)
     {
         goto out;
     }

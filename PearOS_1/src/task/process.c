@@ -116,9 +116,35 @@ int process_map_binary(struct process* process)
 
 }
 
+static int process_map_elf(struct process* process)
+{
+    int res = 0;
+
+    struct elf_file* elf_file = process->elf_file;
+    res = paging_map_to(process->task->page_directory, paging_align_to_lower_page(elf_virtual_base(elf_file)), elf_phys_base(elf_file), paging_align_address(elf_phys_end(elf_file)), PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL | PAGING_IS_WRITEABLE);
+    return res;
+
+}
+
+
 int process_map_memory(struct process* process)
 {
     int res = 0;
+    
+    switch(process->filetype)
+    {
+        case PROCESS_FILE_TYPE_ELF:
+            res = process_map_elf(process);
+        break;
+
+        case PROCESS_FILE_TYPE_BINARY:
+            res = process_map_binary(process);
+        break;
+
+        default:
+            panic("process_map_memory: Invalid filetype\n");
+    }
+
     if (res < 0)
     {
         goto out;

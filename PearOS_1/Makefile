@@ -2,6 +2,7 @@ FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/
 ./build/task/tss.asm.o 
 ./build/loader/formats/elf.o
 ./build/loader/formats/elfloader.o
+./build/isr80h/heap.o
 ./build/task/task.o ./build/isr80h/io.o ./build/keyboard/keyboard.o ./build/keyboard/classic.o
 ./build/task/process.o ./build/task/task.asm.o ./build/isr80h/isr80h.o ./build/isr80h/misc.o
 INCLUDES = -I./src
@@ -48,6 +49,9 @@ i686-elf-gcc $(INCLUDES) -I./src/loader/formats $(FLAGS) -std=gnu99 -c ./src/loa
 
 ./build/gdt/gdt.o: ./src/gdt/gdt.c
 i686-elf-gcc $(INCLUDES) -I./src/gdt $(FLAGS) -std=gnu99 -c ./src/idt/gdt.c -o ./build/idt/gdt.o
+
+./build/isr80h/heap.o: ./src/isr80h/heap.c
+	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/heap.c -o ./build/isr80h/heap.o
 
 ./build/isr80h/isr80h.o: ./src/isr80h/isr80h.c
 	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/isr80h.c -o ./build/isr80h/isr80h.o

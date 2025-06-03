@@ -1,4 +1,4 @@
-FILES=./build/start.o 
+FILES=./build/start.o ./build/pearos.o
 INCLUDES=
 
 all: ${FILES}
@@ -6,6 +6,10 @@ all: ${FILES}
 
 ./build/start.o: ./src/start.asm
 	nasm -f elf ./src/start.asm -o ./build/start.o
+
+
+./build/pearos.o: ./src/pearos.asm
+	nasm -f elf ./src/pearos.asm -o ./build/pearos.o
 
 clean:
 	rm -rf ${FILES}

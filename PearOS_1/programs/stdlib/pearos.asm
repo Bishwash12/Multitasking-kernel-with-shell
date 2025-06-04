@@ -1,8 +1,11 @@
 [BITS 32]
 
+section .asm
+
 global print:function
 global getkey:function
 global pearos_malloc:function
+global pearos_free:function
 
 print:
     push ebp
@@ -24,6 +27,17 @@ getkey:
     pop ebp
     ret
 
+; void putchar(char c)
+putchar:
+    push ebp
+    mov ebp, esp
+    mov eax, 3 ; Command putchar
+    push dword [ebp+8] ; Variable "c"
+    int 0x80
+    add esp, 4
+    pop ebp
+    ret
+
 ; void* pearos_malloc(size_t size)
 pearos_malloc:
     push ebp
@@ -31,6 +45,17 @@ pearos_malloc:
     mov eax, 4 ; command malloc
     push dword[ebp+8] ; Variable "size"
 
+    int 0x80
+    add esp, 4
+    pop ebp
+    ret
+
+; void pearos_free(void* ptr)
+pearos_free:
+    push ebp
+    mov ebp, esp
+    mov eax, 5 ; Command 5 free ( Frees the allocated memory for this process)
+    push dword[ebp+8]
     int 0x80
     add esp, 4
     pop ebp

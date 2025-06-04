@@ -5,5 +5,6 @@
 void print(const char* message);
 int getkey();
 void* pearos_malloc(size_t size);
-
+void pearos_free(void* ptr);
+void putchar(char c);
 #endif

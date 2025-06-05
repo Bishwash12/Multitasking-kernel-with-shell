@@ -3,9 +3,10 @@
 section .asm
 
 global print:function
-global getkey:function
+global pearos_getkey:function
 global pearos_malloc:function
 global pearos_free:function
+global pearos_putchar:function
 
 print:
     push ebp
@@ -18,8 +19,8 @@ print:
     pop ebp
     ret
 
-; int getkey()
-getkey:
+; int pearos_getkey()
+pearos_getkey:
     push ebp
     mov ebp, esp
     mov eax, 2 ; Command getkey
@@ -27,8 +28,8 @@ getkey:
     pop ebp
     ret
 
-; void putchar(char c)
-putchar:
+; void pearos_putchar(char c)
+pearos_putchar:
     push ebp
     mov ebp, esp
     mov eax, 3 ; Command putchar

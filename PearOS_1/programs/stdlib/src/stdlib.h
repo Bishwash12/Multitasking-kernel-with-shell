@@ -1,5 +1,5 @@
-#ifndef STDLIB_H
-#define STDLIB_H
+#ifndef PEAROS_STDLIB_H
+#define PEAROS_STDLIB_H
 #include <stddef.h>
 
 char* itoa(int i);

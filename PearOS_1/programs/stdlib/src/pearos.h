@@ -10,5 +10,5 @@ void pearos_free(void* ptr);
 void pearos_putchar(char c);
 int pearos_getkeyblock();
 void pearos_terminal_readline(char* out, int max, bool output_while_typing);
-
+void pearos_process_load_start(const char* filename);
 #endif

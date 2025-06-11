@@ -8,6 +8,7 @@ global pearos_malloc:function
 global pearos_free:function
 global pearos_putchar:function
 global pearos_process_load_start:function
+global pearos_process_get_arguments:function
 
 print:
     push ebp
@@ -69,6 +70,17 @@ pearos_process_load_start:
     mov ebp, esp
     mov eax, 6 ; Command 6 process load start ( starts a process)
     push dword[ebp+8] ; Variable "filename"
+    int 0x80
+    add esp, 4
+    pop ebp
+    ret
+
+; void pearos_process_get_arguments(struct process_arguments* arguments)
+pearos_process_get_arguments:
+    push ebp
+    mov ebp, esp
+    mov eax, 8 ; Command 8 gets the process arguments
+    push dword[ebp+8]
     int 0x80
     add esp, 4
     pop ebp

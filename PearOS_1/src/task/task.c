@@ -244,3 +244,13 @@ void* task_get_stack_item(struct task* task, int index)
 
     return result;
 }
+
+
+
+void* task_virtual_address_to_physical(struct task* task, void* virtual_address)
+{
+    void* physical_address = 0;
+    task_page_task(task);
+    physical_address = paging_get_physical_address(task->page_directory->directory_entry, virtual_address);
+    return physical_address;
+}

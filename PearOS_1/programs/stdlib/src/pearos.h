@@ -26,4 +26,6 @@ int pearos_getkeyblock();
 void pearos_terminal_readline(char* out, int max, bool output_while_typing);
 void pearos_process_load_start(const char* filename);
 void pearos_process_get_arguments(struct process_arguments* arguments);
+int pearos_system(struct command_argument* arguments);
+int pearos_system_run(const char* command);
 #endif

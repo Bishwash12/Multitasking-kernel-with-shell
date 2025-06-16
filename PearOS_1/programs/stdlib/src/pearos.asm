@@ -9,7 +9,7 @@ global pearos_free:function
 global pearos_putchar:function
 global pearos_process_load_start:function
 global pearos_process_get_arguments:function
-
+global pearos_system:function
 print:
     push ebp
     mov ebp, esp
@@ -74,6 +74,18 @@ pearos_process_load_start:
     add esp, 4
     pop ebp
     ret
+
+; int pearos_system(struct command_argument* arguments)
+pearos_system:
+    push ebp
+    mov ebp, esp
+    mov eax, 7 ; Command 7 process_system ( runs a system command based on the arguments)
+    push dword[ebp+8] ; Variable "arguments"
+    int 0x80
+    add esp, 4
+    pop ebp
+    ret
+
 
 ; void pearos_process_get_arguments(struct process_arguments* arguments)
 pearos_process_get_arguments:

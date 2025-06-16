@@ -5,7 +5,10 @@
 
 int main(int argc, char** argv)
 {
-    print("Hello how are you!\n");
+    for (int i = 0; i < argc; i++)
+    {
+        printf("%s\n", argv[i]);
+    }
 
     while(1)
     {

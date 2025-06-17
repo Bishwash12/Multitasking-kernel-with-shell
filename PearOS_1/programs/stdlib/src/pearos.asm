@@ -10,6 +10,8 @@ global pearos_putchar:function
 global pearos_process_load_start:function
 global pearos_process_get_arguments:function
 global pearos_system:function
+global pearos_exit: function
+
 print:
     push ebp
     mov ebp, esp
@@ -95,5 +97,14 @@ pearos_process_get_arguments:
     push dword[ebp+8]
     int 0x80
     add esp, 4
+    pop ebp
+    ret
+
+; void pearos_exit()
+pearos_exit:
+    push ebp
+    mov ebp, esp
+    mov eax, 9 ; Command 9 process exit
+    int 0x80
     pop ebp
     ret

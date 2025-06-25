@@ -394,7 +394,7 @@ static int fat16_get_fat_entry(struct disk* disk, int cluster)
 
     uint32_t fat_table_position = fat16_get_first_fat_sector(private) * disk->sector_size;
 
-    res = diskstreamer_seek(stream, fat_table_position * (cluster * PEAROS_FAT16_FAT_ENTRY_SIZE));
+    res = diskstreamer_seek(stream, fat_table_position + (cluster * PEAROS_FAT16_FAT_ENTRY_SIZE));
     if (res < 0)
     {
         goto out;

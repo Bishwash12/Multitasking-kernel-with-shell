@@ -41,6 +41,8 @@ step2:
     mov ds, ax
     mov es, ax
     mov ss, ax
+    mov gs, ax
+    mov fs, ax
     mov sp, 0x7c00
     sti ; Enables interrupts
 
@@ -85,6 +87,12 @@ gdt_descriptor:
 
 [BITS 32]
 load32:
+    mov ax, DATA_SEG
+    mov es, ax
+    mov ds, ax
+    mov ss, ax
+    mov fs, ax
+    mov gs, ax
     mov eax, 1
     mov ecx, 100
     mov edi, 0x0100000

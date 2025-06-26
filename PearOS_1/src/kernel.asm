@@ -29,6 +29,9 @@ _start:
     mov al, 0x20 ; Interrupt 0x20 is where master ISR should start
     out 0x21, al
 
+    mov al, 0x04 ; ICW3
+    out 0x21, al
+
     mov al, 00000001b
     out 0x21, al
     ; End remap of the master PIC

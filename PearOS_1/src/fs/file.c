@@ -134,7 +134,11 @@ FILE_MODE file_get_mode_by_string(const char* str)
 int fopen(const char* filename, const char* mode_string)
 {
     int res = 0;
-
+    struct disk* disk = NULL;
+    FILE_MODE mode = FILE_MODE_INVALID;
+    void* descriptor_private_data = NULL;
+    struct file_descriptor* desc = 0;
+    
     struct path_root* root_path = pathparser_parse(filename, NULL);
     if (!root_path)
     {
@@ -150,7 +154,7 @@ int fopen(const char* filename, const char* mode_string)
     }
 
     // Ensure the disk we are reading from exists
-    struct disk* disk = disk_get(root_path->drive_no);
+    disk = disk_get(root_path->drive_no);
     if (!disk)
     {
         res = -EIO;
@@ -163,21 +167,21 @@ int fopen(const char* filename, const char* mode_string)
         goto out;
     }
 
-    FILE_MODE mode = file_get_mode_by_string(mode_string);
+    mode = file_get_mode_by_string(mode_string);
     if (mode == FILE_MODE_INVALID)
     {
         res = -EINVARG;
         goto out;
     }
 
-    void* descriptor_private_data = disk->filesystem->open(disk, root_path->first, mode);
+    descriptor_private_data = disk->filesystem->open(disk, root_path->first, mode);
     if (ISERR(descriptor_private_data))
     {
         res = ERROR_I(descriptor_private_data);
         goto out;
     }
 
-    struct file_descriptor* desc = 0;
+    
     res = file_new_descriptor(&desc);
     if (res < 0)
     {

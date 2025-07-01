@@ -196,7 +196,30 @@ int fopen(const char* filename, const char* mode_string)
 out:
     //fopen should not return error
     if (res < 0)
+    {
+        // ERROR
+        if (root_path)
+        {
+            pathparser_free(root_path);
+            root_path = NULL;
+        }
+
+        if (disk && descriptor_private_data)
+        {
+            disk->filesystem->close(descriptor_private_data);
+            descriptor_private_data = NULL;
+        }
+        
+
+        if (desc)
+        {
+            file_free_descriptor(desc);
+            desc = NULL;
+        }
+
+        // fopen should not return negative values
         res = 0;
+    }
     return res;
 }
 

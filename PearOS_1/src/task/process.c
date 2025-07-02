@@ -210,18 +210,10 @@ int process_free_process(struct process* process)
 {
     int res = 0;
 
-    res = process_terminate_allocations(process);
+    process_terminate_allocations(process);
 
-    if (res < 0)
-    {
-        goto out;
-    }
-
-    res = process_free_programm_data(process);
-    if (res < 0)
-    {
-        goto out;
-    }
+    process_free_programm_data(process);
+ 
 
     // Free the process stack memory
     if (process->stack)
@@ -236,6 +228,8 @@ int process_free_process(struct process* process)
         task_free(process->task);
         process->task = NULL;
     }
+
+    kfree(process);
    
 
 out:

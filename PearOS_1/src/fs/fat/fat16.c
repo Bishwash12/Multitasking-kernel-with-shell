@@ -2,7 +2,6 @@
 #include "string/string.h"
 #include "status.h"
 #include <stdint.h>
-#include <math.h>
 #include "disk/disk.h"
 #include "disk/streamer.h"
 #include "memory/memory.h"
@@ -336,14 +335,14 @@ void fat16_to_proper_string(char** out, const char* in, size_t size)
     **out = 0x00;
 }
 
-void fat16_get_full_relative_filename(struct fat_directory_item* item, char* out, int max_len)
+void fat16_get_full_relative_filename(struct fat_directory_item* item, char *out, int max_len)
 {
     memset(out, 0x00, max_len);
     char *out_tmp = out;
     fat16_to_proper_string(&out_tmp, (const char*) item->filename, sizeof(item->filename));
     if (item->ext[0] != 0x00 && item->ext[0] != 0x20)
     {
-        *out_tmp++ = ".";
+        *out_tmp++ = '.';
         fat16_to_proper_string(&out_tmp, (const char*) item->ext, sizeof(item->ext));
     }
 }
@@ -439,7 +438,7 @@ static int fat16_get_cluster_for_offset(struct disk* disk, int starting_cluster,
         }
 
         // Reserved sectors
-        if (entry = 0xFF0 || entry == 0xFF6)
+        if (entry == 0xFF0 || entry == 0xFF6)
         {
             res = -EIO;
             goto out;
@@ -512,7 +511,7 @@ static int fat16_read_internal(struct disk* disk, int starting_cluster, int offs
 }
 
 
-static fat16_free_directory(struct fat_directory* directory)
+void fat16_free_directory(struct fat_directory* directory)
 {
     if (!directory)
     {
@@ -545,7 +544,7 @@ struct fat_directory* fat16_load_fat_directory(struct disk* disk, struct fat_dir
     int res = 0;
     struct fat_directory* directory = 0;
     struct fat_private* fat_private = disk->fs_private;
-    if ((!item->attribute & FAT_FILE_SUBDIRECTORY))
+    if (!(item->attribute & FAT_FILE_SUBDIRECTORY))
     {
         res = -EINVARG;
         goto out;
@@ -710,7 +709,7 @@ int fat16_stat(struct disk* disk, void* private, struct file_stat* stat)
     
     struct fat_file_descriptor* descriptor = (struct fat_file_descriptor*) private;
     struct fat_item* desc_item = descriptor->item;
-    if (desc_item != FAT_ITEM_TYPE_FILE)
+    if (desc_item->type != FAT_ITEM_TYPE_FILE)
     {
         res = -EINVARG;
         goto out;

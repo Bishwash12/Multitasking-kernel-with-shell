@@ -189,7 +189,6 @@ void kernel_main()
         panic("Failed to load blank.elf\n");
     }
 
-    struct command_argument argument;
     strcpy(argument.argument, "ABC\n");
     argument.next = 0x00;
 

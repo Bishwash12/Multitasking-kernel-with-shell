@@ -139,7 +139,7 @@ void* isr80h_handle_command(int command, struct interrupt_frame* frame)
     return result;
 }
 
-void* isr80h_handler(int command, struct interrupt_fram* frame)
+void* isr80h_handler(int command, struct interrupt_frame* frame)
 {
     void* res = 0;
     kernel_page();

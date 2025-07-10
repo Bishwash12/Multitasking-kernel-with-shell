@@ -41,7 +41,7 @@ void fs_insert_filesystem(struct filesystem* filesystem)
 
 static void fs_static_load()
 {
-    fs_insert_filesystem(fat16_int());
+    fs_insert_filesystem(fat16_init());
 }
 
 void fs_load()
@@ -103,9 +103,9 @@ struct filesystem* fs_resolve(struct disk* disk)
             fs = filesystems[i];
             break;
         }
-
-        return fs;
     }
+
+    return fs;
 }
 
 

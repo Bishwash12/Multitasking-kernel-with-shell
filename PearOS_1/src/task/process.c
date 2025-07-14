@@ -18,7 +18,7 @@ int process_free_process(struct process* process);
 
 static struct process* processes[PEAROS_MAX_PROCESSES] = {};
 
-static void process_int(struct process* process)
+static void process_init(struct process* process)
 {
     memset(process, 0 , sizeof(struct process));
 }
@@ -162,7 +162,7 @@ int process_free_elf_data(struct process* process)
     return 0;
 }
 
-int process_fee_program_data(struct process* process)
+int process_free_program_data(struct process* process)
 {
     int res = 0;
     switch(process->filetype)
@@ -176,7 +176,7 @@ int process_fee_program_data(struct process* process)
         break;
 
         default:
-            res = -EINVARG
+            res = -EINVARG;
     }
 
     return res;
@@ -212,7 +212,7 @@ int process_free_process(struct process* process)
 
     process_terminate_allocations(process);
 
-    process_free_programm_data(process);
+    process_free_program_data(process);
  
 
     // Free the process stack memory
@@ -252,15 +252,15 @@ out:
 
 }
 
-void process_get_arguments(struct process* process, int* argc, char** argv)
+void process_get_arguments(struct process* process, int* argc, char*** argv)
 {
     *argc = process->arguments.argc;
     *argv = process->arguments.argv;
 }
 
-int process_count_command_arguments(struct command_arguments* root_argument)
+int process_count_command_arguments(struct command_argument* root_argument)
 {
-    struct command_arguments* current = root_argument;
+    struct command_argument* current = root_argument;
     int i = 0;
     while(current)
     {
@@ -324,6 +324,10 @@ void process_free(struct process* process, void* ptr)
 
     int res = paging_map_to(process->task->page_directory, allocation->ptr, allocation->ptr, paging_align_address(allocation->ptr+allocation->size), 0x00);
 
+    if (res < 0)
+    {
+        return;
+    }
     // Unjoin the allocation
     process_allocation_unjoin(process, ptr);
 
@@ -422,7 +426,7 @@ static int process_map_elf(struct process* process)
 
     struct elf_file* elf_file = process->elf_file;
     struct elf_header* header = elf_header(elf_file);
-    struct elf_phdr* phdrs = elf_pheader(header);
+    struct elf32_phdr* phdrs = elf_pheader(header);
     for (int i = 0;  i < header->e_phnum; i++)
     {
         struct elf32_phdr* phdr = &phdrs[i];

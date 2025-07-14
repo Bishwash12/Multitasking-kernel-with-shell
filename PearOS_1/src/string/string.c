@@ -90,7 +90,7 @@ int strncmp(const char* str1, const char* str2, int n)
     return 0;
 }
 
-char strcpy(char* dest, const char* src)
+char* strcpy(char* dest, const char* src)
 {
     char* res = dest;
     while (*src != 0)

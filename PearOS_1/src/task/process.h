@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "config.h"
 #include <stdbool.h>
+#include <stddef.h>
 
 #define PROCESS_FILE_TYPE_ELF 0
 #define PROCESS_FILE_TYPE_BINARY 1
@@ -76,7 +77,7 @@ struct process* process_current();
 struct process* process_get(int process_id);
 void* process_malloc(struct process* process, size_t size);
 void process_free(struct process* process, void* ptr);
-void process_get_arguments(struct process* process, int* argc, char** argv);
+void process_get_arguments(struct process* process, int* argc, char*** argv);
 int process_inject_arguments(struct process* process, struct command_argument* root_argument);
 int process_terminate(struct process* process);
 

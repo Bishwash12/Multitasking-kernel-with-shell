@@ -38,7 +38,7 @@ void* isr80h_command7_invoke_system_command(struct interrupt_frame* frame)
     struct command_argument* arguments = task_virtual_address_to_physical(task_current(), task_get_stack_item(task_current(), 0));
     if (!arguments || strlen(arguments[0].argument))
     {
-        return ERROR(-EINVARG);
+        return (void*) -EINVARG;
     }
 
     struct command_argument* root_command_argument = &arguments[0];
@@ -52,14 +52,14 @@ void* isr80h_command7_invoke_system_command(struct interrupt_frame* frame)
     int res = process_load_switch(path, &process);
     if (res < 0)
     {
-        return ERROR(res);
+        return (void*) res;
     }
 
     res = process_inject_arguments(process, root_command_argument);
 
     if (res < 0)
     {
-        return ERROR(res);
+        return (void*) res;
     }
     task_switch(process->task);
     task_return(&process->task->registers);

@@ -125,7 +125,7 @@ int task_switch(struct task* task)
 }
 
 
-int task_save_state(struct task* task, struct interrupt_frame* frame)
+void task_save_state(struct task* task, struct interrupt_frame* frame)
 {
     task->registers.ip = frame->ip;
     task->registers.cs = frame->cs;
@@ -158,9 +158,9 @@ int copy_string_from_task(struct task* task, void* virtual, void* phys, int max)
     }
 
     uint32_t* task_directory = task->page_directory->directory_entry;
-    uint32_t* old_entry = paging_get(task_directory, tmp);
+    uint32_t old_entry = paging_get(task_directory, tmp);
     paging_map(task->page_directory, tmp, tmp, PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
-    paging_swith(task->page_directory);
+    paging_switch(task->page_directory);
     strncpy(tmp, virtual, max);
     kernel_page();
 

@@ -123,6 +123,8 @@ int elf_process_phdr_pt_load(struct elf_file* elf_file, struct elf32_phdr* phdr)
         elf_file->virtual_end_address = (void*) end_virtual_address;
         elf_file->physical_end_address = elf_memory(elf_file)+phdr->p_offset+phdr->p_filesz;
     }
+
+    return 0;
 }
 
 int elf_process_pheader(struct elf_file* elf_file, struct elf32_phdr* phdr)
@@ -192,7 +194,7 @@ struct elf_file* elf_file_new()
 
 int elf_load(const char* filename, struct elf_file** file_out)
 {
-    struct elf_file* elf_file = elf_file_new;
+    struct elf_file* elf_file = elf_file_new();
     int fd = 0;
     int res = fopen(filename, "r");
     if (res < 0)

@@ -24,7 +24,7 @@ struct command_argument* pearos_parse_command(const char* command, int max)
         goto out;
     }
 
-    strncpy(root_command->argument, token, size_of(root_command->argument));
+    strncpy(root_command->argument, token, sizeof(root_command->argument));
     root_command->next = 0;
 
     struct command_argument* current = root_command;

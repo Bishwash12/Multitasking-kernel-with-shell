@@ -77,6 +77,7 @@ void terminal_writechar(char c, char colour)
 
 void terminal_initialize()
 {
+    print("Terminal initialzie");
     video_mem = (uint16_t*)(0xB8000);
     terminal_row = 0;
     terminal_col = 0;
@@ -129,12 +130,19 @@ struct gdt_structured gdt_structured[PEAROS_TOTAL_GDT_SEGMENTS] = {
 void kernel_main()
 {
     terminal_initialize();
+    memset(gdt_real, 0x00, sizeof(gdt_real));
+    gdt_structured_to_gdt(gdt_real, gdt_structured, PEAROS_TOTAL_GDT_SEGMENTS);
 
+    // Load the gdt
+    gdt_load(gdt_real, sizeof(gdt_real)-1);
 
-    // Initilaize the heap
+    // Initialize the heap
     kheap_init();
 
-    // Search and initializes the disk
+    // Initialize filesystems
+    fs_init();
+
+    // Search and initialize the disks
     disk_search_and_init();
 
     // Initialize the interrupt descriptor table
@@ -147,52 +155,47 @@ void kernel_main()
 
     // Load the TSS
     tss_load(0x28);
-    // Setup Paging
+
+    // Setup paging
     kernel_chunk = paging_new_4gb(PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
-
-    // Switch to kernel pagin chunk
+    
+    // Switch to kernel paging chunk
     paging_switch(kernel_chunk);
-
-
-    char* ptr = kzalloc(4096);
-    paging_set(paging_4gb_chunk_get_directory(kernel_chunk), (void*)0x100, (uint32_t)ptr | PAGING_ACCESS_FROM_ALL | PAGING_IS_PRESENT | PAGING_IS_WRITEABLE);
 
     // Enable paging
     enable_paging();
 
-    // Registers kernel commands
+    // Register the kernel commands
     isr80h_register_commands();
-    // Enable the system interrupts
-    //enable_interrupts();
 
-    //pathparser_parse("0:/bin/shell.bin", NULL);
-
+    // Initialize all the system keyboards
     keyboard_init();
-
+        
     struct process* process = 0;
-    int res = process_load("0:/blank.elf", &process);
-
+    int res = process_load_switch("0:/blank.elf", &process);
     if (res != PEAROS_ALL_OK)
-    {
-        panic("Failed to load blank.bin\n");
-    }
-
-    struct command_argument argument;
-    strcpy(argument.argument, "Testing");
-    argument.next = 0x00;
-
-    process_inject_arguments(process, &argument);
-
-    res = process_load_switch("0:/blank.elf", &process);
-    if(res != PEAROS_ALL_OK)
     {
         panic("Failed to load blank.elf\n");
     }
 
-    strcpy(argument.argument, "ABC\n");
-    argument.next = 0x00;
+
+    struct command_argument argument;
+    strcpy(argument.argument, "Testing!");
+    argument.next = 0x00; 
 
     process_inject_arguments(process, &argument);
-    
+
+    res = process_load_switch("0:/blank.elf", &process);
+    if (res != PEAROS_ALL_OK)
+    {
+        panic("Failed to load blank.elf\n");
+    }
+
+    strcpy(argument.argument, "Abc!");
+    argument.next = 0x00; 
+    process_inject_arguments(process, &argument);
+
     task_run_first_ever_task();
+
+    while(1) {}
 }

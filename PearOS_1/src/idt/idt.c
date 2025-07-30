@@ -1,24 +1,24 @@
 #include "idt.h"
-#include "../config.h"
-#include "../kernel.h"
-#include "../memory/memory.h"
-#include "io/io.h"
+#include "config.h"
+#include "kernel.h"
+#include "memory/memory.h"
 #include "task/task.h"
-#include "status.h"
 #include "task/process.h"
-
+#include "io/io.h"
+#include "status.h"
 struct idt_desc idt_descriptors[PEAROS_TOTAL_INTERRUPTS];
 struct idtr_desc idtr_descriptor;
-extern void* interrupt_pointer_table[PEAROS_MAX_INTERRUPTS];
+
+extern void* interrupt_pointer_table[PEAROS_TOTAL_INTERRUPTS];
 
 static INTERRUPT_CALLBACK_FUNCTION interrupt_callbacks[PEAROS_TOTAL_INTERRUPTS];
+
 static ISR80H_COMMAND isr80h_commands[PEAROS_MAX_ISR80H_COMMANDS];
 
 extern void idt_load(struct idtr_desc* ptr);
 extern void int21h();
 extern void no_interrupt();
 extern void isr80h_wrapper();
-
 
 void no_interrupt_handler()
 {
@@ -33,6 +33,7 @@ void interrupt_handler(int interrupt, struct interrupt_frame* frame)
         task_current_save_state(frame);
         interrupt_callbacks[interrupt](frame);
     }
+
     task_page();
     outb(0x20, 0x20);
 }
@@ -45,7 +46,7 @@ void idt_zero()
 void idt_set(int interrupt_no, void* address)
 {
     struct idt_desc* desc = &idt_descriptors[interrupt_no];
-    desc->offset1 = (uint32_t) address & 0x0000ffff;
+    desc->offset_1 = (uint32_t) address & 0x0000ffff;
     desc->selector = KERNEL_CODE_SELECTOR;
     desc->zero = 0x00;
     desc->type_attr = 0xEE;
@@ -55,37 +56,37 @@ void idt_set(int interrupt_no, void* address)
 void idt_handle_exception()
 {
     process_terminate(task_current()->process);
-
     task_next();
 }
 
 void idt_clock()
 {
-    // Acknowledge it before moving to next one
     outb(0x20, 0x20);
-
+    
     // Switch to the next task
     task_next();
 }
 
 void idt_init()
 {
-    memset(idt_descriptors, 0 , sizeof(idt_descriptors));
-    idtr_descriptor.limit = sizeof(idt_descriptors) - 1;
+    memset(idt_descriptors, 0, sizeof(idt_descriptors));
+    idtr_descriptor.limit = sizeof(idt_descriptors) -1;
     idtr_descriptor.base = (uint32_t) idt_descriptors;
 
     for (int i = 0; i < PEAROS_TOTAL_INTERRUPTS; i++)
     {
         idt_set(i, interrupt_pointer_table[i]);
     }
-    idt_set(0, idt_zero);
 
+    idt_set(0, idt_zero);
     idt_set(0x80, isr80h_wrapper);
+
 
     for (int i = 0; i < 0x20; i++)
     {
         idt_register_interrupt_callback(i, idt_handle_exception);
     }
+    
 
     idt_register_interrupt_callback(0x20, idt_clock);
 
@@ -113,17 +114,17 @@ void isr80h_register_command(int command_id, ISR80H_COMMAND command)
 
     if (isr80h_commands[command_id])
     {
-        panic("You are attempting to overwrite the existing command\n");
+        panic("Your attempting to overwrite an existing command\n");
     }
 
     isr80h_commands[command_id] = command;
-
 }
 
 void* isr80h_handle_command(int command, struct interrupt_frame* frame)
 {
     void* result = 0;
-    if (command < 0 || command >= PEAROS_MAX_ISR80H_COMMANDS)
+
+    if(command < 0 || command >= PEAROS_MAX_ISR80H_COMMANDS)
     {
         // Invalid command
         return 0;
@@ -143,7 +144,6 @@ void* isr80h_handler(int command, struct interrupt_frame* frame)
 {
     void* res = 0;
     kernel_page();
-
     task_current_save_state(frame);
     res = isr80h_handle_command(command, frame);
     task_page();

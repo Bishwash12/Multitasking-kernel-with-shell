@@ -1,21 +1,20 @@
 #include "file.h"
 #include "config.h"
 #include "memory/memory.h"
+#include "memory/heap/kheap.h"
+#include "string/string.h"
+#include "disk/disk.h"
 #include "fat/fat16.h"
 #include "status.h"
-#include "memory/heap/kheap.h"
 #include "kernel.h"
-#include "disk/disk.h"
-#include "string/string.h"
-
-struct filesystem* filesystems[PEAROS_MAX_FILESYSTEM];
+struct filesystem* filesystems[PEAROS_MAX_FILESYSTEMS];
 struct file_descriptor* file_descriptors[PEAROS_MAX_FILE_DESCRIPTORS];
 
 static struct filesystem** fs_get_free_filesystem()
 {
     int i = 0;
-    for (i = 0; i < PEAROS_MAX_FILESYSTEM; i++)
-    { 
+    for (i = 0; i < PEAROS_MAX_FILESYSTEMS; i++)
+    {
         if (filesystems[i] == 0)
         {
             return &filesystems[i];
@@ -31,12 +30,11 @@ void fs_insert_filesystem(struct filesystem* filesystem)
     fs = fs_get_free_filesystem();
     if (!fs)
     {
-        print("Problem inserting filesystem");
-        while (1) {}
+        print("Problem inserting filesystem"); 
+        while(1) {}
     }
 
     *fs = filesystem;
-
 }
 
 static void fs_static_load()
@@ -58,7 +56,7 @@ void fs_init()
 
 static void file_free_descriptor(struct file_descriptor* desc)
 {
-    file_descriptors[desc->index -1] = 0x00;
+    file_descriptors[desc->index-1] = 0x00;
     kfree(desc);
 }
 
@@ -70,7 +68,7 @@ static int file_new_descriptor(struct file_descriptor** desc_out)
         if (file_descriptors[i] == 0)
         {
             struct file_descriptor* desc = kzalloc(sizeof(struct file_descriptor));
-            // Descriptor starts at 1
+            // Descriptors start at 1
             desc->index = i + 1;
             file_descriptors[i] = desc;
             *desc_out = desc;
@@ -89,16 +87,17 @@ static struct file_descriptor* file_get_descriptor(int fd)
         return 0;
     }
 
-    int index = fd -1;
+    // Descriptors start at 1
+    int index = fd - 1;
     return file_descriptors[index];
 }
 
 struct filesystem* fs_resolve(struct disk* disk)
 {
     struct filesystem* fs = 0;
-    for (int i = 0; i < PEAROS_MAX_FILESYSTEM; i++)
+    for (int i = 0; i < PEAROS_MAX_FILESYSTEMS; i++)
     {
-        if (filesystems[i] != 0 && filesystems[i]-> resolve(disk) == 0)
+        if (filesystems[i] != 0 && filesystems[i]->resolve(disk) == 0)
         {
             fs = filesystems[i];
             break;
@@ -108,8 +107,6 @@ struct filesystem* fs_resolve(struct disk* disk)
     return fs;
 }
 
-
-
 FILE_MODE file_get_mode_by_string(const char* str)
 {
     FILE_MODE mode = FILE_MODE_INVALID;
@@ -117,28 +114,24 @@ FILE_MODE file_get_mode_by_string(const char* str)
     {
         mode = FILE_MODE_READ;
     }
-
     else if(strncmp(str, "w", 1) == 0)
     {
         mode = FILE_MODE_WRITE;
     }
-
     else if(strncmp(str, "a", 1) == 0)
     {
         mode = FILE_MODE_APPEND;
     }
-
     return mode;
 }
 
-int fopen(const char* filename, const char* mode_string)
+int fopen(const char* filename, const char* mode_str)
 {
     int res = 0;
     struct disk* disk = NULL;
     FILE_MODE mode = FILE_MODE_INVALID;
     void* descriptor_private_data = NULL;
     struct file_descriptor* desc = 0;
-    
     struct path_root* root_path = pathparser_parse(filename, NULL);
     if (!root_path)
     {
@@ -167,7 +160,7 @@ int fopen(const char* filename, const char* mode_string)
         goto out;
     }
 
-    mode = file_get_mode_by_string(mode_string);
+    mode = file_get_mode_by_string(mode_str);
     if (mode == FILE_MODE_INVALID)
     {
         res = -EINVARG;
@@ -187,14 +180,13 @@ int fopen(const char* filename, const char* mode_string)
     {
         goto out;
     }
-
     desc->filesystem = disk->filesystem;
     desc->private = descriptor_private_data;
     desc->disk = disk;
     res = desc->index;
 
 out:
-    //fopen should not return error
+
     if (res < 0)
     {
         // ERROR
@@ -209,7 +201,6 @@ out:
             disk->filesystem->close(descriptor_private_data);
             descriptor_private_data = NULL;
         }
-        
 
         if (desc)
         {
@@ -217,9 +208,11 @@ out:
             desc = NULL;
         }
 
-        // fopen should not return negative values
+
+        // fopen shouldnt return negative values
         res = 0;
     }
+
     return res;
 }
 
@@ -234,9 +227,8 @@ int fstat(int fd, struct file_stat* stat)
     }
 
     res = desc->filesystem->stat(desc->disk, desc->private, stat);
-
 out:
-     return res;
+    return res;
 }
 
 int fclose(int fd)
@@ -254,7 +246,7 @@ int fclose(int fd)
     {
         file_free_descriptor(desc);
     }
-out:    
+out:
     return res;
 }
 
@@ -269,11 +261,9 @@ int fseek(int fd, int offset, FILE_SEEK_MODE whence)
     }
 
     res = desc->filesystem->seek(desc->private, offset, whence);
-
 out:
     return res;
 }
-
 int fread(void* ptr, uint32_t size, uint32_t nmemb, int fd)
 {
     int res = 0;
@@ -290,9 +280,7 @@ int fread(void* ptr, uint32_t size, uint32_t nmemb, int fd)
         goto out;
     }
 
-    res = desc->filesystem->read(desc->disk, desc->private, size, nmemb, (char*)ptr);
-
-
+    res = desc->filesystem->read(desc->disk, desc->private, size, nmemb, (char*) ptr);
 out:
     return res;
 }

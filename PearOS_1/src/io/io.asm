@@ -2,7 +2,6 @@ section .asm
 
 global insb
 global insw
-
 global outb
 global outw
 
@@ -14,7 +13,7 @@ insb:
     mov edx, [ebp+8]
     in al, dx
 
-    pop ebp 
+    pop ebp
     ret
 
 insw:
@@ -25,7 +24,7 @@ insw:
     mov edx, [ebp+8]
     in ax, dx
 
-    pop ebp 
+    pop ebp
     ret
 
 outb:
